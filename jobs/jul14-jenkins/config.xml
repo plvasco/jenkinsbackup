@@ -1,0 +1,102 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.39">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@1.7.1"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@1.7.1">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+      <options/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.81">
+    <script>#!/usr/bin/env groovy
+
+@Library(&apos;jenkins-shared-lib&apos;) _
+
+pipeline {
+    // agent { label &apos;test-2&apos; }
+    agent any
+
+    // environment {
+    //     PROJECT_NAME = get_project_name()
+    //     PR_BRANCH = &quot;&quot;
+    // }
+
+    stages{
+        stage(&quot;git checkout&quot;){
+            steps{
+                // git &apos;https://github.com/mavenishere/codacy&apos;
+                git &apos;https://github.com/vicente-ramos/codacy.git&apos;
+            }
+           
+        }
+        stage(&apos;Build&apos;) {
+            steps {
+                sh label: &apos;Debug: Print env vars&apos;, script: &apos;&apos;&apos;printenv | sort&apos;&apos;&apos;
+            }
+        }        
+        stage(&quot;info&quot;){
+            steps{
+                writeFile file: &apos;info.json&apos;, text: create_info()
+                
+            }          
+        }
+        stage(&quot;Compress Files&quot;){
+            steps{
+                script {
+                    def statusCode = compress_files(&quot;time.txt&quot;, &quot;README.md&quot;, &quot;tests.py&quot;, &quot;awesome/*&quot;)
+                    // if ( statusCode == 200 ) {
+                    //     echo &quot;Passed! Status Code is : ${statusCode}&quot;
+                    // } else {
+                    //     throw new hudson.AbortException(&quot;[FAILURE] Status Code is not value : ${statusCode}&quot;)
+                    // }   
+                    echo statusCode
+                }
+            }          
+        }    
+        stage(&quot;Upload Code coverage to codacy.&quot;) {
+            steps {
+                codacy_coverage(&quot;codacy&quot;, &quot;pietto.vasco&quot;, &quot;ruby&quot;, &quot;codacy.json&quot;, &quot;1e2daf66bb1e406ba535fdbb9e064831&quot;)
+            }
+        }
+        stage(&apos;codacy&apos;) {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: &apos;token&apos;, variable: &apos;TOKEN&apos;)]) {
+                        def grade = codacy_report(TOKEN)
+                        if ( grade == &quot;B&quot; ) {
+                            echo &quot;Grade is of acceptable value : ${grade}&quot;
+                        }else {
+                            throw new hudson.AbortException(&quot;[FAILURE] Grade is below acceptable value : ${grade}&quot;)
+                        }
+                        // last_log = sh(returnStdout: true, script: &quot;git log -1&quot;)
+                        // echo &quot;Last log &quot; + last_log
+                        // last_author = getGitAuthor()
+                        // echo &quot;Last git author was &quot; + last_author
+                        // author_email = getAuthorEmailid()
+                        // echo &quot;Author email is &quot; + author_email
+                        // slack_id = slackUserIdFromEmail(&quot;${getAuthorEmailid()}&quot;)
+                        // echo &quot;Slack id is &quot; + slack_id
+                        // commiters_slack_id = getAllCommitersId()
+                        // echo &quot;The slak ids for all users are &quot; + commiters_slack_id
+                    }
+                }
+            }
+        }                
+    }
+    post {
+        always{
+            slacknotification(currentBuild.currentResult,&apos;#jenkins&apos;,getTestResultsForSlack())
+            slacknotificationAllCommiters(currentBuild.currentResult,&apos;#jenkins&apos;,getTestResultsForSlack())
+        }
+    }    
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

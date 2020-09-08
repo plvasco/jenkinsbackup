@@ -1,0 +1,64 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<jenkins.plugins.slack.SlackNotifier_-DescriptorImpl plugin="slack@2.40">
+  <baseUrl></baseUrl>
+  <teamDomain>vascocapital</teamDomain>
+  <tokenCredentialId>slack-tokenId-credential</tokenCredentialId>
+  <botUser>true</botUser>
+  <sendAsText>false</sendAsText>
+  <iconEmoji></iconEmoji>
+  <username></username>
+  <room>#jenkins</room>
+  <slackUserIdResolver class="jenkins.plugins.slack.user.EmailSlackUserIdResolver">
+    <mailAddressResolvers class="hudson.ExtensionList">
+      <hudson>
+        <disabledAdministrativeMonitors>
+          <string>hudson.diagnosis.TooManyJobsButNoView</string>
+        </disabledAdministrativeMonitors>
+        <version>2.235.2</version>
+        <installStateName>RUNNING</installStateName>
+        <numExecutors>2</numExecutors>
+        <mode>NORMAL</mode>
+        <useSecurity>true</useSecurity>
+        <authorizationStrategy class="hudson.security.FullControlOnceLoggedInAuthorizationStrategy">
+          <denyAnonymousReadAccess>true</denyAnonymousReadAccess>
+        </authorizationStrategy>
+        <securityRealm class="hudson.security.HudsonPrivateSecurityRealm">
+          <disableSignup>true</disableSignup>
+          <enableCaptcha>false</enableCaptcha>
+        </securityRealm>
+        <disableRememberMe>false</disableRememberMe>
+        <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$DefaultProjectNamingStrategy"/>
+        <workspaceDir>${JENKINS_HOME}/workspace/${ITEM_FULL_NAME}</workspaceDir>
+        <buildsDir>${ITEM_ROOTDIR}/builds</buildsDir>
+        <markupFormatter class="hudson.markup.EscapedMarkupFormatter"/>
+        <jdks/>
+        <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+        <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+        <clouds/>
+        <quietPeriod>5</quietPeriod>
+        <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
+        <views>
+          <hudson.model.AllView>
+            <owner class="hudson.model.Hudson" reference="../../.."/>
+            <name>all</name>
+            <filterExecutors>false</filterExecutors>
+            <filterQueue>false</filterQueue>
+            <properties class="hudson.model.View$PropertyList"/>
+          </hudson.model.AllView>
+        </views>
+        <primaryView>all</primaryView>
+        <slaveAgentPort>0</slaveAgentPort>
+        <label></label>
+        <crumbIssuer class="hudson.security.csrf.DefaultCrumbIssuer">
+          <excludeClientIPFromCrumb>true</excludeClientIPFromCrumb>
+        </crumbIssuer>
+        <nodeProperties/>
+        <globalNodeProperties/>
+      </hudson>
+      <jenkins class="hudson.model.Hudson" reference="../hudson"/>
+      <extensionType>hudson.tasks.MailAddressResolver</extensionType>
+      <listeners class="java.util.concurrent.CopyOnWriteArrayList"/>
+      <legacyInstances/>
+    </mailAddressResolvers>
+  </slackUserIdResolver>
+</jenkins.plugins.slack.SlackNotifier_-DescriptorImpl>
