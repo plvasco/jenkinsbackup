@@ -18,6 +18,7 @@
   <builders>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
+
 # Jenkins Configuraitons Directory
 cd $JENKINS_HOME
 
